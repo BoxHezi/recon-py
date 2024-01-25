@@ -1,11 +1,10 @@
 # recon-py
 
-
 A tool which call quake API
 
 ## Config
 
-Prior to use the script, a file named `quake.conf` need to be created.
+Before running the script, a file named `quake.conf` need to be created.
 The file should contain the following information:
 
 ```text
@@ -19,20 +18,23 @@ Any other data you want to add to header can follow the same format
 ## Usage
 
 ```bash
-usage: quake.py [-h] [--query QUERY] [--output {txt,json,all}] [--file FILE]
+usage: quake.py [-h] [-q QUERY] [-o {txt,json,all}] [-st START_TIME] [-et END_TIME]
 
 Quake API in python
 
 options:
   -h, --help            show this help message and exit
-  --query QUERY, -q QUERY
+  -q QUERY, --query QUERY
                         Query to search
-  --output {txt,json,all}, -o {txt,json,all}
+  -o {txt,json,all}, --output {txt,json,all}
                         Output format
-  --file FILE, -f FILE  File to save the output
+  -st START_TIME, --start-time START_TIME
+                        Start time of the query, format YYYY-mm-dd HH:MM:SS UTC
+  -et END_TIME, --end-time END_TIME
+                        End time of the query, format YYYY-mm-dd HH:MM:SS UTC
 ```
 
-By default, the output filename will be `<query>.{txt,json}` where `: `, `:`, ` ` will be replaced by `_`
+By default, the output filename will be `<query>.{txt,json}` where `: `, `:`, ` ` will be replaced by `_`.
 
 ## Example
 
@@ -41,5 +43,6 @@ python quake.py -q "domain: example.com AND service: http" -o all
 ```
 
 Two output file will be:
-- `domain_example_com_service_http.txt`
-- `domain_example_com_service_http.json`
+
+- `domain_example.com_AND_service_http.txt`
+- `domain_example.com_AND_service_http.json`
