@@ -24,14 +24,26 @@ args.add_argument("-et", "--end-time", help="End time of the query, format YYYY-
 
 
 def init_header():
-    config = {}
-    with open("quake.conf", "r") as file:
-        for line in file.readlines():
-            conf = line.split(":")
-            k = conf[0].strip()
-            v = conf[1].strip()
-            config.update({k: v})
-    return config
+    _conf_file = "quake.conf"
+    try:
+        config = {}
+        with open(_conf_file, "r") as file:
+            for line in file.readlines():
+                conf = line.split(":")
+                k = conf[0].strip()
+                v = conf[1].strip()
+                config.update({k: v})
+        return config
+    except FileNotFoundError as e:
+        print(e)
+        print(f"\nCreating {_conf_file}")
+        with open(_conf_file, "w") as file:
+            file.write("X-QuakeToken: <your-token-here>\nsize: <number-of-results>")
+        msg = ("Please provide following information in the file:\n"
+              "X-QuakeToken: <your-token-here>\n"
+              "size: <number-of-results>")
+        print(msg)
+        sys.exit(1)
 
 
 def quake_query(query, start_time, end_time, header=init_header()) -> list:
