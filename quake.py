@@ -53,7 +53,7 @@ def out_to_txt(data, file_name):
             if d.get("domain"):
                 f.write(f" {d.get('domain')}:{d.get('port')}")
             else:
-                f.write("None")
+                f.write(" None")
             f.write(f" {d.get('time')}\n")
 
 
@@ -83,7 +83,7 @@ def main(args):
             if data.get("domain"):
                 print(f" {data.get('domain')}:{data.get('port')}", end="")
             else:
-                print("None", end="")
+                print(" None", end="")
             print(f" {data.get('time')}")
 
         # --output
