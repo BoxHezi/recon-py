@@ -1,3 +1,4 @@
+import sys
 import requests
 import json
 import re
@@ -45,7 +46,9 @@ def quake_query(query, header=init_header()) -> list:
     try:
         return resp.json().get("data")
     except:
-        return resp.json().get("message")
+        error_msg = f"Error: {resp.status_code}\n{resp.text}\n{data.get('size')}"
+        print(error_msg)
+        sys.exit(1)
 
 
 def out_to_txt(data, file_name):
