@@ -51,23 +51,22 @@ def quake_query(query, header=init_header()) -> list:
 def out_to_txt(data, file_name):
     with open(file_name, "w") as f:
         for d in data:
-            f.write(f"{d.get('ip')}:{d.get('port')}")
-            if d.get("domain"):
-                f.write(f" {d.get('domain')}:{d.get('port')}")
-            else:
-                f.write(" None")
-            f.write(f" {d.get('time')}\n")
+            ip_port = f"{d.get('ip')}:{d.get('port')}"
+            domain_port = f" {d.get('domain')}:{d.get('port')}" if d.get("domain") else " None"
+            time = f" {d.get('time')}\n"
+            f.write(ip_port + domain_port + time)
 
 
 def out_to_json(data, file_name):
-    values = []
-    for d in data:
-        values.append({
+    values = [
+        {
             "ip": d.get("ip"),
             "port": d.get("port"),
-            "domain": d.get("domain"),
+            "domain": d.get("domain") if d.get("domain") else "None",
             "time": d.get("time")
-        })
+        }
+        for d in data
+    ]
 
     with open(file_name, "w") as f:
         json.dump(values, f, indent=4)
