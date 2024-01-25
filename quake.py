@@ -17,9 +17,10 @@ header = {
 
 args = argparse.ArgumentParser(description="Quake API in python", formatter_class=argparse.RawTextHelpFormatter)
 
-args.add_argument("--query", "-q", help="Query to search")
-args.add_argument("--output", "-o", choices=["txt", "json", "all"], help="Output format")
-args.add_argument("--file", "-f", help="File to save the output")
+args.add_argument("-q", "--query", help="Query to search")
+args.add_argument("-o", "--output", choices=["txt", "json", "all"], help="Output format")
+args.add_argument("-st", "--start-time", help="Start time of the query, format YYYY-mm-dd HH:MM:SS UTC")
+args.add_argument("-et", "--end-time", help="End time of the query, format YYYY-mm-dd HH:MM:SS UTC")
 
 
 def init_header():
@@ -33,13 +34,17 @@ def init_header():
     return config
 
 
-def quake_query(query, header=init_header()) -> list:
+def quake_query(query, start_time, end_time, header=init_header()) -> list:
     data = {
         "query": query,
         "start": 0,
         "size": header.get("size"),
         "latest": True
     }
+    if start_time:
+        data.update({"start_time": start_time})
+    if end_time:
+        data.update({"end_time": end_time})
     del header["size"]
 
     resp = requests.post(URL, headers=header, json=data)
@@ -90,13 +95,13 @@ def result_summary(result_num, start_time, end_time):
 
 
 def main(args):
-    start_time = datetime.now()
+    starting = datetime.now()
 
     resp_data = None
     if args.query:
-        resp_data = quake_query(args.query)
+        resp_data = quake_query(args.query, args.start_time, args.end_time)
 
-    end_time = datetime.now()
+    ending = datetime.now()
     result_num = len(resp_data)
 
     if resp_data:
@@ -113,16 +118,16 @@ def main(args):
         out_name_prefix = re.sub(r":[ ]*| ", "_", args.query)
         if args.output == "txt":
             # output to txt
-            out_to_txt(resp_data, args.file if args.file else f"{out_name_prefix}.txt")
+            out_to_txt(resp_data, f"{out_name_prefix}.txt")
         elif args.output == "json":
             # output to json
-            out_to_json(resp_data, args.file if args.file else f"{out_name_prefix}.json")
+            out_to_json(resp_data, f"{out_name_prefix}.json")
         elif args.output == "all":
             # output to both
-            out_to_txt(resp_data, args.file if args.file else f"{out_name_prefix}.txt")
-            out_to_json(resp_data, args.file if args.file else f"{out_name_prefix}.json")
+            out_to_txt(resp_data, f"{out_name_prefix}.txt")
+            out_to_json(resp_data, f"{out_name_prefix}.json")
 
-    print(result_summary(result_num, start_time, end_time))
+    print(result_summary(result_num, starting, ending))
 
 if __name__ == "__main__":
     args = args.parse_args()
