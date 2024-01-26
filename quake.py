@@ -46,6 +46,26 @@ def init_header():
         sys.exit(1)
 
 
+def datetime_qualifier(date_str):
+    formats = ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d"]
+    for fmt in formats:
+        try:
+            datetime.strptime(date_str, fmt)
+            return True
+        except ValueError:
+            continue
+    print(f"Invalid datetime format: {date_str}")
+    return False
+
+
+def update_time_param(time, key, data):
+    if time:
+        if datetime_qualifier(time):
+            data.update({key: time})
+        else:
+            print(f"Invalid {key} format, {key} will not be added")
+
+
 def quake_query(query, start_time, end_time, header=init_header()) -> list:
     data = {
         "query": query,
@@ -53,18 +73,21 @@ def quake_query(query, start_time, end_time, header=init_header()) -> list:
         "size": header.get("size"),
         "latest": True
     }
-    if start_time:
-        data.update({"start_time": start_time})
-    if end_time:
-        data.update({"end_time": end_time})
+    update_time_param(start_time, "start_time", data)
+    update_time_param(end_time, "end_time", data)
     del header["size"]
 
     resp = requests.post(URL, headers=header, json=data)
-    try:
-        return resp.json().get("data")
-    except:
-        error_msg = f"Error: {resp.status_code}\n{resp.text}\n{data.get('size')}"
-        print(error_msg)
+    resp = resp.json()
+
+    if resp.get("code") == 0: # succeed query
+        return resp.get("data")
+    else:
+        error_data = {
+            "code": resp.get("code"),
+            "message": resp.get("message")
+        }
+        print(error_data)
         sys.exit(1)
 
 
