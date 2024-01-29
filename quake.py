@@ -58,12 +58,12 @@ def datetime_qualifier(date_str):
     return False
 
 
-def update_time_param(time, key, data):
+def update_time_param(time, time_type, data):
     if time:
         if datetime_qualifier(time):
-            data.update({key: time})
+            data.update({time_type: time})
         else:
-            print(f"Invalid {key} format, {key} will not be added")
+            print(f"Invalid {time_type} format, {time_type} will not be added")
 
 
 def quake_query(query, start_time, end_time, header=init_header()) -> list:
@@ -91,7 +91,7 @@ def quake_query(query, start_time, end_time, header=init_header()) -> list:
         sys.exit(1)
 
 
-def out_to_txt(data, file_name):
+def write_txt(data, file_name):
     with open(file_name, "w") as f:
         for d in data:
             ip_port = f"{d.get('ip')}:{d.get('port')}"
@@ -100,7 +100,7 @@ def out_to_txt(data, file_name):
             f.write(ip_port + domain_port + time)
 
 
-def out_to_json(data, file_name):
+def write_json(data, file_name):
     values = [
         {
             "ip": d.get("ip"),
@@ -113,6 +113,17 @@ def out_to_json(data, file_name):
 
     with open(file_name, "w") as f:
         json.dump(values, f, indent=4)
+
+
+def write_to_files(content, name_prefix, output_type):
+    name_prefix = re.sub(r":[ ]*| ", "_", name_prefix)
+    if output_type == "txt":
+        write_txt(content, f"{name_prefix}.txt")
+    elif output_type == "json":
+        write_json(content, f"{name_prefix}.json")
+    elif output_type == "all":
+        write_txt(content, f"{name_prefix}.txt")
+        write_json(content, f"{name_prefix}.json")
 
 
 def result_summary(result_num, start_time, end_time):
@@ -150,17 +161,7 @@ def main(args):
             print(f" {data.get('time')}")
 
         # --output
-        out_name_prefix = re.sub(r":[ ]*| ", "_", args.query)
-        if args.output == "txt":
-            # output to txt
-            out_to_txt(resp_data, f"{out_name_prefix}.txt")
-        elif args.output == "json":
-            # output to json
-            out_to_json(resp_data, f"{out_name_prefix}.json")
-        elif args.output == "all":
-            # output to both
-            out_to_txt(resp_data, f"{out_name_prefix}.txt")
-            out_to_json(resp_data, f"{out_name_prefix}.json")
+        args.output and write_to_files(resp_data, args.query, args.output)
 
     print(result_summary(result_num, starting, ending))
 
