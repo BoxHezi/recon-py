@@ -36,6 +36,31 @@ options:
 
 By default, the output filename will be `<query>.{txt,json}` where `: `, `:`, ` ` will be replaced by `_`.
 
+## Result
+
+For `stdout` and `txt` format, the result will be in the following format:
+
+```text
+ip:port domain:port time
+```
+
+If there are records which doesn't have domain, then the `domain:port` will be replaced by `None`
+
+For `json` format, the result will be in the following format:
+
+```json
+[
+  {
+    "iP": ip,
+    "port": port,
+    "domain": domain,
+    "time": time
+  }
+]
+```
+
+For records have no domain, `None` will be used as the value
+
 ## Example
 
 ```bash
