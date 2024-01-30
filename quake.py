@@ -8,26 +8,27 @@ import argparse
 from datetime import datetime
 
 
+CONF_FILE = "quake.conf"
 URL = "https://quake.360.net/api/v3/search/quake_service"
-header = {
+HEADER = {
     "Content-Type": "application/json",
     "X-QuakeToken": "your_token_here",
 }
+OUTPUT_OPTIONS = ["txt", "json", "all"]
 
 
 args = argparse.ArgumentParser(description="Quake API in python", formatter_class=argparse.RawTextHelpFormatter)
 
 args.add_argument("-q", "--query", help="Query to search")
-args.add_argument("-o", "--output", choices=["txt", "json", "all"], help="Output format")
+args.add_argument("-o", "--output", choices=OUTPUT_OPTIONS, help="Output format")
 args.add_argument("-st", "--start-time", help="Start time of the query, format YYYY-mm-dd HH:MM:SS UTC")
 args.add_argument("-et", "--end-time", help="End time of the query, format YYYY-mm-dd HH:MM:SS UTC")
 
 
 def init_header():
-    _conf_file = "quake.conf"
     try:
-        config = {}
-        with open(_conf_file, "r") as file:
+        config = HEADER
+        with open(CONF_FILE, "r") as file:
             for line in file.readlines():
                 conf = line.split(":")
                 k = conf[0].strip()
@@ -36,8 +37,8 @@ def init_header():
         return config
     except FileNotFoundError as e:
         print(e)
-        print(f"\nCreating {_conf_file}")
-        with open(_conf_file, "w") as file:
+        print(f"\nCreating {CONF_FILE}")
+        with open(CONF_FILE, "w") as file:
             file.write("X-QuakeToken: <your-token-here>\nsize: <number-of-results>")
         msg = ("Please provide following information in the file:\n"
               "X-QuakeToken: <your-token-here>\n"
@@ -80,7 +81,7 @@ def quake_query(query, start_time, end_time, header=init_header()) -> list:
     resp = requests.post(URL, headers=header, json=data)
     resp = resp.json()
 
-    if resp.get("code") == 0: # succeed query
+    if resp.get("code") == 0:  # succeed query
         return resp.get("data")
     else:
         error_data = {
@@ -148,7 +149,6 @@ def main(args):
         resp_data = quake_query(args.query, args.start_time, args.end_time)
 
     ending = datetime.now()
-    result_num = len(resp_data)
 
     if resp_data:
         # print to stdout
@@ -163,7 +163,7 @@ def main(args):
         # --output
         args.output and write_to_files(resp_data, args.query, args.output)
 
-    print(result_summary(result_num, starting, ending))
+    print(result_summary(len(resp_data), starting, ending))
 
 if __name__ == "__main__":
     args = args.parse_args()
