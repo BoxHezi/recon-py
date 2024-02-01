@@ -79,7 +79,13 @@ def quake_query(query, start_time, end_time, header=init_header()) -> list:
     del header["size"]
 
     resp = requests.post(URL, headers=header, json=data)
-    resp = resp.json()
+    try:
+        resp = resp.json()  # http 200
+    except requests.exceptions.JSONDecodeError as e:
+        print(f"Request failed: {e}")
+        print(f"Status Code: {resp.status_code}")
+        print(f"Headers: {resp.headers}")
+        print(f"Body: {resp.text}")
 
     if resp.get("code") == 0:  # succeed query
         return resp.get("data")
