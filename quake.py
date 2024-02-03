@@ -123,7 +123,7 @@ def write_json(data, file_name):
 
 
 def write_to_files(content, name_prefix, output_type):
-    name_prefix = re.sub(r":[ ]*| ", "_", name_prefix)
+    name_prefix = re.sub(r":[ ]*| |[/\\]+", "_", name_prefix)  # replace "/" to underscore as well
     if output_type == "txt":
         write_txt(content, f"{name_prefix}.txt")
     elif output_type == "json":
