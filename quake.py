@@ -22,8 +22,10 @@ def init_argparse():
 
     args.add_argument("-q", "--query", help="Query to search")
     args.add_argument("-o", "--output", choices=OUTPUT_OPTIONS, help="Output format")
+    args.add_argument("-n", "--name", help="Specify output file name")
     args.add_argument("-st", "--start-time", help="Start time of the query, format YYYY-mm-dd HH:MM:SS UTC")
     args.add_argument("-et", "--end-time", help="End time of the query, format YYYY-mm-dd HH:MM:SS UTC")
+    args.add_argument("--silent", help="Silent Mode", action="store_true", default=False)
     return args
 
 
@@ -124,8 +126,12 @@ def write_json(data, file_name):
         json.dump(values, f, indent=4)
 
 
-def write_to_files(content, name_prefix, output_type):
-    name_prefix = re.sub(r":[ ]*| |[/\\]+", "_", name_prefix)  # replace "/" to underscore as well
+def write_to_files(content, name_prefix, output_type, filename: str = None):
+    if filename:
+        name_prefix = filename
+    else:
+        name_prefix = re.sub(r":[ ]*| |[/\\]+", "_", name_prefix)  # replace "/" to underscore as well
+
     if output_type == "txt":
         write_txt(content, f"{name_prefix}.txt")
     elif output_type == "json":
@@ -169,9 +175,10 @@ def main(args):
             print(f" {data.get('time')}")
 
         # --output
-        args.output and write_to_files(resp_data, args.query, args.output)
+        args.output and write_to_files(resp_data, args.query, args.output, args.name)
 
-    print(result_summary(len(resp_data), starting, ending))
+    if not args.silent:
+        print(result_summary(len(resp_data), starting, ending))
 
 if __name__ == "__main__":
     args = init_argparse().parse_args()
