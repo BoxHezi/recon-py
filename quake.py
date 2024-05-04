@@ -17,12 +17,14 @@ HEADER = {
 OUTPUT_OPTIONS = ["txt", "json", "all"]
 
 
-args = argparse.ArgumentParser(description="Quake API in python", formatter_class=argparse.RawTextHelpFormatter)
+def init_argparse():
+    args = argparse.ArgumentParser(description="Quake API in python", formatter_class=argparse.RawTextHelpFormatter)
 
-args.add_argument("-q", "--query", help="Query to search")
-args.add_argument("-o", "--output", choices=OUTPUT_OPTIONS, help="Output format")
-args.add_argument("-st", "--start-time", help="Start time of the query, format YYYY-mm-dd HH:MM:SS UTC")
-args.add_argument("-et", "--end-time", help="End time of the query, format YYYY-mm-dd HH:MM:SS UTC")
+    args.add_argument("-q", "--query", help="Query to search")
+    args.add_argument("-o", "--output", choices=OUTPUT_OPTIONS, help="Output format")
+    args.add_argument("-st", "--start-time", help="Start time of the query, format YYYY-mm-dd HH:MM:SS UTC")
+    args.add_argument("-et", "--end-time", help="End time of the query, format YYYY-mm-dd HH:MM:SS UTC")
+    return args
 
 
 def init_header():
@@ -172,6 +174,9 @@ def main(args):
     print(result_summary(len(resp_data), starting, ending))
 
 if __name__ == "__main__":
-    args = args.parse_args()
-    main(args)
+    args = init_argparse().parse_args()
+    if not any(vars(args).values()):
+        init_argparse().parse_args(["-h"])
+    else:
+        main(args)
 
